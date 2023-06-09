@@ -4,8 +4,9 @@ TEST_START_DATE = '2021-10-01'
 TEST_END_DATE = '2023-03-01'
 
 portfolio_code = 0
-# ag_name = 'ppo'
-ag_name = 'td3'
+ag_name = 'ppo'
+# ag_name = 'td3'
+ORG_INIT_AMOUNT=1e6
 
 PPO_PARAMS = {
     "n_steps": 2048,

@@ -8,7 +8,8 @@ from stable_baselines3 import PPO
 from classic_drl import DRLAgent
 from config import *
 from util import *
-import json
+from evaluation import *
+import os
 
 if __name__ == '__main__':
 
@@ -20,8 +21,7 @@ if __name__ == '__main__':
 	)
 
     # asset_list = DOW_30_TICKER[:4]
-    with open('portfolio_list.json') as f:
-        portfolio_list = json.load(f)
+    
     asset_list = portfolio_list[str(portfolio_code)]
     print(asset_list)
     asset_list.sort()
@@ -31,9 +31,12 @@ if __name__ == '__main__':
     logging.info('asset_list: '+(' '.join(asset_list) ) )
     logging.info('TRAIN_START_DATE: '+TRAIN_START_DATE)
     logging.info('TRAIN_END_DATE: '+TRAIN_END_DATE)
-    logging.info('TRAIN_START_DATE: '+TEST_START_DATE)
-    logging.info('TRAIN_END_DATE: '+TEST_END_DATE)
+    logging.info('TEST_START_DATE: '+TEST_START_DATE)
+    logging.info('TEST_END_DATE: '+TEST_END_DATE)
     logging.info('len_TECHNICAL_INDICATORS_LIST: %d'% (len(TECHNICAL_INDICATORS_LIST) ))
+
+    if not os.path.exists('./results/'+str(portfolio_code)+'/'+ag_name+'/'):
+        os.makedirs('./results/'+str(portfolio_code)+'/'+ag_name+'/')
 
     processed = get_df(asset_list)
     # print(processed)
@@ -99,10 +102,30 @@ if __name__ == '__main__':
                                  tb_log_name=ag_name,
                                  total_timesteps=100000)
         e_test_gym = StockPortfolioEnv(**eval_env_kwargs)
-        money_df, action_df = DRLAgent.DRL_prediction(model,e_test_gym)
+        reward_df, action_df = DRLAgent.DRL_prediction(model,e_test_gym)
         action_df.columns=final_asset_list
-        print(money_df)
+        print(reward_df)
         print(action_df)
 
-        money_df.to_csv('./results/'+str(portfolio_code)+'/'+ag_name+'/daily_reward_record.csv')
+        reward_df.to_csv('./results/'+str(portfolio_code)+'/'+ag_name+'/daily_reward_record.csv')
         action_df.to_csv('./results/'+str(portfolio_code)+'/'+ag_name+'/weight_record.csv')
+
+        ann_reward,ann_stdev,mdd,stdev_week,sharpe = get_df_ABC(reward_df)
+        print('test performance')
+        print(ann_reward,ann_stdev,mdd,stdev_week,sharpe)
+        logging.info('test performance' )
+        logging.info('annual reward: %.4f'% ann_reward )
+        logging.info('annual stdev: %.4f'% ann_stdev )
+        logging.info('sharpe: %.4f'% sharpe )
+        logging.info('mdd: %.4f'% mdd )
+        logging.info('annual stdev_week: %.4f'% stdev_week )
+
+        BH_ann_reward,BH_ann_stdev,BH_mdd,BH_week_ann_stdev,BH_sharpe = get_comb_ABC(final_asset_list,TEST_START_DATE,TEST_END_DATE)
+        print('B&H performance')
+        print(BH_ann_reward,BH_ann_stdev,BH_mdd,BH_week_ann_stdev,BH_sharpe)
+        logging.info('B&H performance' )
+        logging.info('annual reward: %.4f'% BH_ann_reward )
+        logging.info('annual stdev: %.4f'% BH_ann_stdev )
+        logging.info('sharpe: %.4f'% BH_sharpe )
+        logging.info('mdd: %.4f'% BH_mdd )
+        logging.info('annual stdev_week: %.4f'% BH_week_ann_stdev )
