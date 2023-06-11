@@ -10,8 +10,23 @@ from config import *
 from util import *
 from evaluation import *
 import os
-
+import argparse
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Test')
+    parser.add_argument('--code', type=int, default=portfolio_code, help='portfolio code')
+    parser.add_argument('--ag', type=str, default=ag_name, help='agent name')
+    args = parser.parse_args()
+    portfolio_code = args.code
+    ag_name = args.ag
+    print('portfolio_code=',portfolio_code)
+    print('agent_name=',ag_name)
+
+    if portfolio_code in [1,4,6,8,9,10,12,16,17,18,19,20,21]:
+        try:
+            os._exit(0) 
+        except:
+            print('die')
+            print('os.exit')
 
     log_file_timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
     log_filename = log_file_timestr+'.log' #datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S.log")
@@ -27,6 +42,8 @@ if __name__ == '__main__':
     asset_list.sort()
     print(asset_list)
 
+    logging.info('portfolio_code: %d'%(portfolio_code))
+    logging.info('agent_name: '+ag_name)
     logging.info('len_asset_list: %d'%(len(asset_list)))
     logging.info('asset_list: '+(' '.join(asset_list) ) )
     logging.info('TRAIN_START_DATE: '+TRAIN_START_DATE)
@@ -101,6 +118,7 @@ if __name__ == '__main__':
         model = agent.train_model(model=model, 
                                  tb_log_name=ag_name,
                                  total_timesteps=100000)
+        model.save('./results/'+str(portfolio_code)+'/'+ag_name+'/trained_model.zip')
         e_test_gym = StockPortfolioEnv(**eval_env_kwargs)
         reward_df, action_df = DRLAgent.DRL_prediction(model,e_test_gym)
         action_df.columns=final_asset_list
