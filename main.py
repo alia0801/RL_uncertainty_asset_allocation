@@ -21,12 +21,12 @@ if __name__ == '__main__':
     print('portfolio_code=',portfolio_code)
     print('agent_name=',ag_name)
 
-    if portfolio_code in [1,4,6,8,9,10,12,16,17,18,19,20,21]:
-        try:
-            os._exit(0) 
-        except:
-            print('die')
-            print('os.exit')
+    # if portfolio_code in [1,4,6,8,9,10,12,16,17,18,19,20,21]:
+    #     try:
+    #         os._exit(0) 
+    #     except:
+    #         print('die')
+    #         print('os.exit')
 
     log_file_timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
     log_filename = log_file_timestr+'.log' #datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%S.log")
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     # asset_list = DOW_30_TICKER[:4]
     
     asset_list = portfolio_list[str(portfolio_code)]
+    asset_list = list(set(asset_list)&set(ok_stickers))
     print(asset_list)
     asset_list.sort()
     print(asset_list)

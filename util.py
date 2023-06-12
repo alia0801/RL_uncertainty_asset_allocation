@@ -22,6 +22,9 @@ import json
 # %%
 with open('portfolio_list.json') as f:
     portfolio_list = json.load(f)
+with open('./ok_tickers.txt','r') as f:
+    lines = f.read().split('\n')[:-1]
+ok_stickers = [(x) for x in lines]
 
 # %%
 class TensorboardCallback(BaseCallback):
